@@ -1,0 +1,68 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+const {ObjectID} = require('mongodb');
+
+const {mongoose} = require('./db/mongoose');
+const {User} = require('./models/user');
+const {Todo} = require('./models/todo');
+
+var app = express();
+app.use(bodyParser.json());
+
+app.listen(3000, () => {
+    console.log('Started on port - 3000');
+});
+
+app.post('/todos', (req, res) => {
+    console.log('testing req - data');
+    console.log(req.body);
+    var todo = new Todo({
+      text: req.body.text
+    });
+  
+    todo.save().then((doc) => {
+      res.send(doc);
+    }, (e) => {
+      res.status(400).send(e);
+    });
+  });
+
+  app.get('/todos', (req, res) => {
+    Todo.find().then((doc) => {
+        res.send(doc);
+    }, (err) => {
+        res.status(400).send(e);
+    });
+  });
+
+  app.get('/todos/:id', (req, res) => {
+      var id = req.params.id;
+
+      if(!ObjectID.isValid(id)) {
+          res.status(404).send();
+      }
+
+      Todo.findById(id).then((doc) => {
+          if(doc) 
+            res.send(doc);
+          else
+            res.status(404).send();
+      }, (err) => {
+        res.status(400).send(err);
+      });
+  });
+
+//var mongoose = require('mongoose');
+//var Schema = mongoose.Schema;
+
+// var user = new User({
+//     name: 'Chethan',
+//     email: 'chethan@gmail.com'
+// });
+
+// user.save().then((docs) => {
+//     console.log('Saved succesfully.');
+//     console.log(docs);
+// }, (e) => {
+//     console.log('Unable to save', e._message);
+// });
