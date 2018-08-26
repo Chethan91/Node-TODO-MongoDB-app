@@ -40,17 +40,33 @@ app.post('/todos', (req, res) => {
       var id = req.params.id;
 
       if(!ObjectID.isValid(id)) {
-          res.status(404).send();
+          return res.status(404).send();
       }
 
       Todo.findById(id).then((doc) => {
-          if(doc) 
-            res.send(doc);
-          else
+          if(!doc) 
             res.status(404).send();
-      }, (err) => {
+          
+          res.send(doc);  
+      }).catch((e) => {
         res.status(400).send(err);
       });
+  });
+
+  app.delete('/todos/:id', (req, res) => {
+    var id = req.params.id;
+
+    if(!ObjectID.isValid(id)) 
+      return res.status(404).send();
+
+    Todo.findByIdAndRemove(id).then((doc) => {
+      if(!doc)
+        res.status(404).send();
+
+      res.send(doc);
+    }).catch((e) => {
+      res.status(400).send(err);
+    });
   });
 
 //var mongoose = require('mongoose');
